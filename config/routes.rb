@@ -3,6 +3,11 @@ Rails.application.routes.draw do
     member do
       post :tamper
     end
+
+    collection do
+      delete :reset
+    end
   end
+
   root "blocks#index"
 end

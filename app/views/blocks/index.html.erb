@@ -1,4 +1,4 @@
-<main class="max-w-3xl mx-auto px-4 py-12">
+<main class="max-w-3xl mx-auto px-3 py-6 sm:px-4 sm:py-12">
   <%# Ventana de terminal %>
   <div class="rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-2xl shadow-black/50 overflow-hidden">
 
@@ -7,23 +7,23 @@
       <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
       <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
       <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
-      <span class="ml-3 text-xs text-zinc-500 tracking-wide">toychain — block explorer</span>
+      <span class="ml-3 text-xs text-zinc-500 tracking-wide truncate">toychain — block explorer</span>
     </div>
 
-    <div class="p-6 space-y-6">
+    <div class="p-4 sm:p-6 space-y-5 sm:space-y-6">
 
       <%# Línea de estado de la cadena %>
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p class="text-sm text-zinc-500">
           <span class="text-amber-500 glow-amber">$</span> <span class="cursor-blink">chain --status</span>
         </p>
         <% if @chain_valid %>
-          <span class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
+          <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
             <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             CHAIN VALID · <%= @blocks.size %> BLOCKS
           </span>
         <% else %>
-          <span class="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-400">
+          <span class="inline-flex w-fit items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-400">
             <span class="h-1.5 w-1.5 rounded-full bg-red-400 animate-pulse"></span>
             CHAIN CORRUPTED
           </span>
@@ -45,8 +45,8 @@
                 <div class="ml-6 h-6 w-px bg-gradient-to-b <%= @first_invalid && i > @first_invalid ? "from-red-500/40 to-red-500/40" : "from-zinc-700 to-amber-500/40" %>"></div>
               <% end %>
 
-              <div class="rounded-lg border p-4 transition-colors <%= broken ? "border-red-500/50 bg-red-950/20" : "border-zinc-800 bg-zinc-950/60 hover:border-amber-500/40" %>">
-                <div class="flex items-baseline justify-between">
+              <div class="rounded-lg border p-3 sm:p-4 transition-colors <%= broken ? "border-red-500/50 bg-red-950/20" : "border-zinc-800 bg-zinc-950/60 hover:border-amber-500/40" %>">
+                <div class="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between">
                   <h2 class="font-semibold glow-amber <%= broken ? "text-red-400" : "text-amber-400" %>">
                     block #<%= block.block_index %>
                     <% if broken %><span class="text-xs font-normal text-red-500 ml-2">[INVALID]</span><% end %>
@@ -57,16 +57,16 @@
                 <p class="mt-2 text-sm break-words <%= broken ? "text-red-300" : "text-zinc-300" %>"><%= block.data %></p>
 
                 <dl class="mt-3 grid gap-1 text-xs">
-                  <div class="flex gap-2">
-                    <dt class="text-zinc-600 shrink-0 w-16">hash</dt>
+                  <div class="flex gap-2 min-w-0">
+                    <dt class="text-zinc-600 shrink-0 w-12 sm:w-16">hash</dt>
                     <dd class="truncate <%= broken ? "text-red-400/80" : "text-emerald-400/80" %>"><%= block.block_hash %></dd>
                   </div>
-                  <div class="flex gap-2">
-                    <dt class="text-zinc-600 shrink-0 w-16">prev</dt>
+                  <div class="flex gap-2 min-w-0">
+                    <dt class="text-zinc-600 shrink-0 w-12 sm:w-16">prev</dt>
                     <dd class="text-zinc-500 truncate"><%= block.previous_hash %></dd>
                   </div>
                   <div class="flex gap-2">
-                    <dt class="text-zinc-600 shrink-0 w-16">nonce</dt>
+                    <dt class="text-zinc-600 shrink-0 w-12 sm:w-16">nonce</dt>
                     <dd class="text-zinc-400"><%= block.nonce %></dd>
                   </div>
                 </dl>
@@ -81,11 +81,17 @@
         </ol>
       <% end %>
 
-      <%# Prompt para minar %>
-      <div class="pt-2">
+      <%# Acciones de la cadena %>
+      <div class="pt-2 flex flex-wrap items-center gap-3">
         <%= link_to new_block_path,
               class: "inline-flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition-colors" do %>
           <span>$</span> mine --new-block
+        <% end %>
+
+        <% unless @blocks.empty? %>
+          <%= button_to "$ chain --reset", reset_blocks_path, method: :delete,
+                data: { turbo_confirm: "Wipe the entire chain?" },
+                class: "cursor-pointer rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-500 hover:border-red-500/50 hover:text-red-400 transition-colors" %>
         <% end %>
       </div>
 

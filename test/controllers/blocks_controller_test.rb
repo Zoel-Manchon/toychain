@@ -20,4 +20,13 @@ class BlocksControllerTest < ActionDispatch::IntegrationTest
     refute ChainValidator.valid?(Block.all)
     assert_redirected_to blocks_url
   end
+
+  test "reset wipes the chain" do
+    post blocks_url, params: { block: { data: "doomed" } }
+
+    assert_difference("Block.count", -1) do
+      delete reset_blocks_url
+    end
+    assert_redirected_to blocks_url
+  end
 end

@@ -38,6 +38,11 @@ class BlocksController < ApplicationController
     end
   end
 
+  def reset
+    Block.delete_all
+    redirect_to blocks_path, notice: "Chain reset — genesis awaits."
+  end
+
   private
 
   def block_params

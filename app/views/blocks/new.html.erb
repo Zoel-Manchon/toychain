@@ -1,9 +1,39 @@
-<% content_for :title, "New block" %>
+<main class="max-w-2xl mx-auto px-4 py-12">
+  <div class="rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-2xl shadow-black/50 overflow-hidden">
+    <div class="flex items-center gap-2 px-4 py-3 bg-zinc-900 border-b border-zinc-800">
+      <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
+      <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
+      <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
+      <span class="ml-3 text-xs text-zinc-500 tracking-wide">toychain — mine</span>
+    </div>
 
-<div class="md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">New block</h1>
+    <div class="p-6">
+      <p class="text-sm text-zinc-500 mb-4">
+        <span class="text-amber-500 glow-amber">$</span> <span class="cursor-blink">mine --interactive</span>
+      </p>
 
-  <%= render "form", block: @block %>
+      <%= form_with model: @block, class: "space-y-4" do |form| %>
+        <% if @block.errors.any? %>
+          <div class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            <% @block.errors.full_messages.each do |msg| %>
+              <p>✗ <%= msg %></p>
+            <% end %>
+          </div>
+        <% end %>
 
-  <%= link_to "Back to blocks", blocks_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-</div>
+        <div>
+          <%= form.label :data, "block data", class: "block text-xs text-zinc-500 mb-1" %>
+          <%= form.text_area :data, rows: 4, autofocus: true,
+                placeholder: "payload to store in this block...",
+                class: "w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-700 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30" %>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <%= form.submit "⛏ mine block",
+                class: "cursor-pointer rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition-colors" %>
+          <%= link_to "cancel", blocks_path, class: "text-sm text-zinc-600 hover:text-zinc-400" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</main>

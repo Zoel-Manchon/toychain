@@ -1,10 +1,6 @@
 require "test_helper"
 
 class BlocksControllerTest < ActionDispatch::IntegrationTest
-  setup do
-    @block = blocks(:one)
-  end
-
   test "should get index" do
     get blocks_url
     assert_response :success
@@ -15,34 +11,29 @@ class BlocksControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should create block" do
+  test "should mine a block on create" do
     assert_difference("Block.count") do
-      post blocks_url, params: { block: { block_hash: @block.block_hash, block_index: @block.block_index, data: @block.data, mined_at: @block.mined_at, nonce: @block.nonce, previous_hash: @block.previous_hash } }
+      post blocks_url, params: { block: { data: "test payload" } }
     end
 
-    assert_redirected_to block_url(Block.last)
-  end
-
-  test "should show block" do
-    get block_url(@block)
-    assert_response :success
-  end
-
-  test "should get edit" do
-    get edit_block_url(@block)
-    assert_response :success
-  end
-
-  test "should update block" do
-    patch block_url(@block), params: { block: { block_hash: @block.block_hash, block_index: @block.block_index, data: @block.data, mined_at: @block.mined_at, nonce: @block.nonce, previous_hash: @block.previous_hash } }
-    assert_redirected_to block_url(@block)
-  end
-
-  test "should destroy block" do
-    assert_difference("Block.count", -1) do
-      delete block_url(@block)
-    end
-
+    block = Block.order(:block_index).last
+    assert_equal "test payload", block.data
+    assert block.block_hash.start_with?("0" * ProofOfWork::DIFFICULTY)
     assert_redirected_to blocks_url
+  end
+
+  test "should not create block without data" do
+    assert_no_difference("Block.count") do
+      post blocks_url, params: { block: { data: "" } }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "mined blocks form a valid chain" do
+    post blocks_url, params: { block: { data: "first" } }
+    post blocks_url, params: { block: { data: "second" } }
+
+    assert ChainValidator.valid?(Block.all)
   end
 end

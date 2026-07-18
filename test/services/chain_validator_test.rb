@@ -52,4 +52,14 @@ class ChainValidatorTest < ActiveSupport::TestCase
 
     refute ChainValidator.valid?(chain)
   end
+  test "first_invalid_position returns nil for a valid chain" do
+  assert_nil ChainValidator.first_invalid_position(valid_chain(3))
+end
+
+  test "first_invalid_position points at the tampered block" do
+    chain = valid_chain(3)
+    chain[1].data = "tampered!"
+
+    assert_equal 1, ChainValidator.first_invalid_position(chain)
+  end
 end

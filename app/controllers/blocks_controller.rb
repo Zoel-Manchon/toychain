@@ -1,7 +1,14 @@
 class BlocksController < ApplicationController
   def index
     @blocks = Block.all
-    @chain_valid = ChainValidator.valid?(@blocks)
+    @first_invalid = ChainValidator.first_invalid_position(@blocks)
+    @chain_valid = @first_invalid.nil?
+  end
+
+  def tamper
+    block = Block.find(params[:id])
+    block.update!(data: "#{block.data} ⚠ TAMPERED")
+    redirect_to blocks_path, alert: "Block ##{block.block_index} tampered — integrity broken downstream."
   end
 
   def new

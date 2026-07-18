@@ -39,25 +39,27 @@
       <% else %>
         <ol class="space-y-0">
           <% @blocks.each_with_index do |block, i| %>
+            <% broken = @first_invalid && i >= @first_invalid %>
             <li>
               <% if i.positive? %>
-                <div class="ml-6 h-6 w-px bg-gradient-to-b from-zinc-700 to-amber-500/40"></div>
+                <div class="ml-6 h-6 w-px bg-gradient-to-b <%= @first_invalid && i > @first_invalid ? "from-red-500/40 to-red-500/40" : "from-zinc-700 to-amber-500/40" %>"></div>
               <% end %>
 
-              <div class="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 hover:border-amber-500/40 transition-colors">
+              <div class="rounded-lg border p-4 transition-colors <%= broken ? "border-red-500/50 bg-red-950/20" : "border-zinc-800 bg-zinc-950/60 hover:border-amber-500/40" %>">
                 <div class="flex items-baseline justify-between">
-                  <h2 class="text-amber-400 font-semibold glow-amber">
+                  <h2 class="font-semibold glow-amber <%= broken ? "text-red-400" : "text-amber-400" %>">
                     block #<%= block.block_index %>
+                    <% if broken %><span class="text-xs font-normal text-red-500 ml-2">[INVALID]</span><% end %>
                   </h2>
                   <time class="text-xs text-zinc-600"><%= block.mined_at&.strftime("%Y-%m-%d %H:%M:%S") %></time>
                 </div>
 
-                <p class="mt-2 text-sm text-zinc-300 break-words"><%= block.data %></p>
+                <p class="mt-2 text-sm break-words <%= broken ? "text-red-300" : "text-zinc-300" %>"><%= block.data %></p>
 
                 <dl class="mt-3 grid gap-1 text-xs">
                   <div class="flex gap-2">
                     <dt class="text-zinc-600 shrink-0 w-16">hash</dt>
-                    <dd class="text-emerald-400/80 truncate"><%= block.block_hash %></dd>
+                    <dd class="truncate <%= broken ? "text-red-400/80" : "text-emerald-400/80" %>"><%= block.block_hash %></dd>
                   </div>
                   <div class="flex gap-2">
                     <dt class="text-zinc-600 shrink-0 w-16">prev</dt>
@@ -68,6 +70,11 @@
                     <dd class="text-zinc-400"><%= block.nonce %></dd>
                   </div>
                 </dl>
+
+                <div class="mt-3 flex justify-end">
+                  <%= button_to "☠ tamper", tamper_block_path(block),
+                        class: "cursor-pointer rounded border border-zinc-700 px-2 py-1 text-xs text-zinc-500 hover:border-red-500/50 hover:text-red-400 transition-colors" %>
+                </div>
               </div>
             </li>
           <% end %>

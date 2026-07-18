@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  block_index: 1
+  data: MyText
+  previous_hash: MyString
+  block_hash: MyString
+  nonce: 1
+  mined_at: 2026-07-18 23:15:24
+
+two:
+  block_index: 1
+  data: MyText
+  previous_hash: MyString
+  block_hash: MyString
+  nonce: 1
+  mined_at: 2026-07-18 23:15:24

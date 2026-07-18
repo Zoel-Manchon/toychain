@@ -34,6 +34,6 @@ class BlocksController < ApplicationController
   private
 
   def block_params
-    params.expect(block: [:data])
+    params.expect(block: [ :data ])
   end
 end

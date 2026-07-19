@@ -1,17 +1,15 @@
 @import "tailwindcss";
 
-/* ── CRT ámbar: toques sutiles sobre Tailwind ─────────────────── */
+/* ── Plasma CRT: fucsia + cian sobre azul pizarra ─────────────── */
 
-/* Viñeta radial de fondo: el centro respira un poco más de luz */
+/* Viñeta radial: la parte alta respira luz fucsia/índigo */
 body {
-  background-image: radial-gradient(
-    ellipse 80% 60% at 50% -10%,
-    rgb(245 158 11 / 0.06),
-    transparent 70%
-  );
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgb(217 70 239 / 0.07), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 110%, rgb(34 211 238 / 0.04), transparent 60%);
 }
 
-/* Scanlines casi imperceptibles sobre toda la pantalla */
+/* Scanlines casi imperceptibles */
 body::before {
   content: "";
   position: fixed;
@@ -21,24 +19,51 @@ body::before {
     to bottom,
     transparent 0px,
     transparent 2px,
-    rgb(0 0 0 / 0.12) 3px
+    rgb(2 6 23 / 0.14) 3px
   );
   z-index: 50;
 }
 
-/* Utilidad: brillo fósforo para textos ámbar destacados */
-.glow-amber {
-  text-shadow: 0 0 8px rgb(245 158 11 / 0.45);
+/* Brillo fósforo para acentos fucsia */
+.glow-accent {
+  text-shadow: 0 0 8px rgb(217 70 239 / 0.5);
 }
 
 /* Cursor de terminal parpadeante */
 .cursor-blink::after {
   content: "▌";
   margin-left: 2px;
-  color: rgb(245 158 11);
+  color: rgb(232 121 249);
   animation: blink 1.1s steps(1) infinite;
 }
 
 @keyframes blink {
   50% { opacity: 0; }
+}
+
+/* Barra de minado: bloques desplazándose, estilo progreso de terminal */
+.mining-bar {
+  background: repeating-linear-gradient(
+    90deg,
+    rgb(232 121 249 / 0.85) 0 10px,
+    rgb(232 121 249 / 0.12) 10px 20px
+  );
+  animation: mine-scan 0.9s linear infinite;
+}
+
+@keyframes mine-scan {
+  to { background-position: 40px 0; }
+}
+
+/* Puntos suspensivos animados para "mining..." */
+.mining-dots::after {
+  content: "";
+  animation: dots 1.5s steps(4) infinite;
+}
+
+@keyframes dots {
+  0%   { content: ""; }
+  25%  { content: "."; }
+  50%  { content: ".."; }
+  75%  { content: "..."; }
 }

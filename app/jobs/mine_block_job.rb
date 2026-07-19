@@ -25,18 +25,7 @@ class MineBlockJob < ApplicationJob
       mined_at: Time.current
     )
 
-    broadcast_chain
-  end
-
-  private
-
-  def broadcast_chain
-    blocks = Block.all
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "chain",
-      target: "chain",
-      partial: "blocks/chain",
-      locals: { blocks: blocks, first_invalid: ChainValidator.first_invalid_position(blocks) }
-    )
+    # Este job aún cuenta como no-terminado mientras corre perform: lo excluimos.
+    ChainBroadcaster.call(pending: [ MiningQueue.pending - 1, 0 ].max)
   end
 end

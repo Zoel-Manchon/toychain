@@ -14,21 +14,33 @@ class BlocksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create enqueues a mining job" do
-    assert_enqueued_with(job: MineBlockJob, args: [ "hello" ]) do
-      post blocks_url, params: { block: { data: "hello" } }
+    assert_enqueued_with(job: MineBlockJob, args: [ "hello", 4 ]) do
+      post blocks_url, params: { block: { data: "hello", difficulty: 4 } }
+    end
+  end
+
+  test "difficulty is clamped to the allowed range" do
+    assert_enqueued_with(job: MineBlockJob, args: [ "sneaky", 6 ]) do
+      post blocks_url, params: { block: { data: "sneaky", difficulty: 99 } }
+    end
+  end
+
+  test "missing difficulty falls back to the minimum" do
+    assert_enqueued_with(job: MineBlockJob, args: [ "plain", 2 ]) do
+      post blocks_url, params: { block: { data: "plain" } }
     end
   end
 
   test "should mine a block on create" do
     assert_difference("Block.count") do
       perform_enqueued_jobs do
-        post blocks_url, params: { block: { data: "test payload" } }
+        post blocks_url, params: { block: { data: "test payload", difficulty: 4 } }
       end
     end
 
     block = Block.order(:block_index).last
     assert_equal "test payload", block.data
-    assert block.block_hash.start_with?("0" * ProofOfWork::DIFFICULTY)
+    assert block.block_hash.start_with?("0" * 4)
   end
 
   test "should not enqueue a job without data" do
@@ -41,8 +53,8 @@ class BlocksControllerTest < ActionDispatch::IntegrationTest
 
   test "mined blocks form a valid chain" do
     perform_enqueued_jobs do
-      post blocks_url, params: { block: { data: "first" } }
-      post blocks_url, params: { block: { data: "second" } }
+      post blocks_url, params: { block: { data: "first", difficulty: 2 } }
+      post blocks_url, params: { block: { data: "second", difficulty: 2 } }
     end
 
     assert ChainValidator.valid?(Block.all)
@@ -50,8 +62,8 @@ class BlocksControllerTest < ActionDispatch::IntegrationTest
 
   test "tampering a block corrupts the chain" do
     perform_enqueued_jobs do
-      post blocks_url, params: { block: { data: "first" } }
-      post blocks_url, params: { block: { data: "second" } }
+      post blocks_url, params: { block: { data: "first", difficulty: 2 } }
+      post blocks_url, params: { block: { data: "second", difficulty: 2 } }
     end
     victim = Block.first
 
@@ -63,7 +75,7 @@ class BlocksControllerTest < ActionDispatch::IntegrationTest
 
   test "reset wipes the chain" do
     perform_enqueued_jobs do
-      post blocks_url, params: { block: { data: "doomed" } }
+      post blocks_url, params: { block: { data: "doomed", difficulty: 2 } }
     end
 
     assert_difference("Block.count", -1) do

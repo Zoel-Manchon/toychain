@@ -1,18 +1,8 @@
 class ChainValidator
-  def self.valid?(blocks)
-    blocks.each_cons(2).all? do |prev_block, current|
-      current.previous_hash == prev_block.block_hash &&
-        current.block_hash == ProofOfWork.compute(
-          current.block_index, current.data, current.previous_hash, current.nonce
-        )
-    end
-  end
-end
-
-class ChainValidator
   # Posición (0-based) del primer bloque que rompe la cadena, o nil si es válida.
-  # Un bloque falla por integridad (su hash no verifica contra sus datos)
-  # o por enlace (su previous_hash no coincide con el hash del anterior).
+  # Un bloque falla por enlace (previous_hash no coincide), por integridad
+  # (su hash no verifica contra sus datos) o por trabajo (el hash no cumple
+  # la dificultad que el propio bloque declara).
   def self.first_invalid_position(blocks)
     previous_hash = nil
 
@@ -21,8 +11,9 @@ class ChainValidator
       integrity_ok = block.block_hash == ProofOfWork.compute(
         block.block_index, block.data, block.previous_hash, block.nonce
       )
+      work_ok = block.block_hash.start_with?("0" * block.difficulty.to_i)
 
-      return position unless link_ok && integrity_ok
+      return position unless link_ok && integrity_ok && work_ok
 
       previous_hash = block.block_hash
     end

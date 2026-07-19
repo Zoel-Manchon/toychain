@@ -11,13 +11,16 @@ class BlocksController < ApplicationController
 
   def create
     @block = Block.new(data: block_params[:data])
+    difficulty = block_params[:difficulty].to_i.clamp(
+      ProofOfWork::DIFFICULTY_RANGE.min, ProofOfWork::DIFFICULTY_RANGE.max
+    )
 
     if @block.data.blank?
       @block.validate
       render :new, status: :unprocessable_entity
     else
-      MineBlockJob.perform_later(@block.data)
-      redirect_to blocks_path, notice: "⛏ Mining queued — refresh in a moment to see your block."
+      MineBlockJob.perform_later(@block.data, difficulty)
+      redirect_to blocks_path, notice: "⛏ Mining queued at difficulty #{difficulty} — your block will appear when proof-of-work completes."
     end
   end
 
@@ -35,6 +38,6 @@ class BlocksController < ApplicationController
   private
 
   def block_params
-    params.expect(block: [ :data ])
+    params.expect(block: [ :data, :difficulty ])
   end
 end

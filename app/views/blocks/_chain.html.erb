@@ -57,6 +57,16 @@
               <dt class="text-zinc-600 shrink-0 w-12 sm:w-16">nonce</dt>
               <dd class="text-zinc-400"><%= block.nonce %></dd>
             </div>
+            <div class="flex gap-2">
+              <dt class="text-zinc-600 shrink-0 w-12 sm:w-16">diff</dt>
+              <dd class="text-zinc-400"><%= block.difficulty %></dd>
+            </div>
+            <% if block.mined_ms %>
+              <div class="flex gap-2">
+                <dt class="text-zinc-600 shrink-0 w-12 sm:w-16">mined in</dt>
+                <dd class="text-amber-400/70"><%= block.mined_ms %> ms</dd>
+              </div>
+            <% end %>
           </dl>
 
           <div class="mt-3 flex justify-end">

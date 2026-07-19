@@ -30,4 +30,9 @@ class ProofOfWorkTest < ActiveSupport::TestCase
     assert_equal result[:block_hash],
                  ProofOfWork.compute(7, "payload", "f" * 64, result[:nonce])
   end
+  test "mine honors a custom difficulty" do
+    result = ProofOfWork.mine(block_index: 1, data: "x", previous_hash: "0" * 64, difficulty: 2)
+
+    assert result[:block_hash].start_with?("00")
+  end
 end

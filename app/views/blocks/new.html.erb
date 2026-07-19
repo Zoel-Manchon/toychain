@@ -27,7 +27,13 @@
                 placeholder: "payload to store in this block...",
                 class: "w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-700 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30" %>
         </div>
-
+         <div>
+          <%= form.label :difficulty, "difficulty (leading zeros)", class: "block text-xs text-zinc-500 mb-1" %>
+          <%= form.select :difficulty,
+                options_for_select(ProofOfWork::DIFFICULTY_RANGE.map { |d| [ "#{d} — #{"0" * d}…", d ] }, 4),
+                {},
+                class: "w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30" %>
+        </div>         
         <div class="flex items-center gap-3">
           <%= form.submit "⛏ mine block",
                 class: "cursor-pointer rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition-colors" %>

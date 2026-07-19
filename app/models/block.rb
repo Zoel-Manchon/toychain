@@ -1,5 +1,6 @@
 class Block < ApplicationRecord
   validates :data, presence: true
+  validates :difficulty, inclusion: { in: ProofOfWork::DIFFICULTY_RANGE }
 
   default_scope { order(:block_index) }
 

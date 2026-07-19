@@ -1,15 +1,42 @@
-require "test_helper"
-require "turbo/broadcastable/test_helper"
-class MineBlockJobTest < ActiveJob::TestCase
-  include Turbo::Broadcastable::TestHelper
+class MineBlockJob < ApplicationJob
+  queue_as :default
 
-  test "mines a valid block and broadcasts the chain" do
-    assert_turbo_stream_broadcasts("chain") do
-      MineBlockJob.perform_now("hello")
-    end
+  def perform(data, difficulty = ProofOfWork::DIFFICULTY)
+    block_index = Block.next_index
+    previous_hash = Block.latest_hash
 
-    block = Block.last
-    assert_equal "hello", block.data
-    assert block.block_hash.start_with?("0" * ProofOfWork::DIFFICULTY)
+    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    result = ProofOfWork.mine(
+      block_index: block_index,
+      data: data,
+      previous_hash: previous_hash,
+      difficulty: difficulty
+    )
+    elapsed_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
+
+    Block.create!(
+      block_index: block_index,
+      data: data,
+      previous_hash: previous_hash,
+      block_hash: result[:block_hash],
+      nonce: result[:nonce],
+      difficulty: difficulty,
+      mined_ms: elapsed_ms,
+      mined_at: Time.current
+    )
+
+    broadcast_chain
+  end
+
+  private
+
+  def broadcast_chain
+    blocks = Block.all
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "chain",
+      target: "chain",
+      partial: "blocks/chain",
+      locals: { blocks: blocks, first_invalid: ChainValidator.first_invalid_position(blocks) }
+    )
   end
 end

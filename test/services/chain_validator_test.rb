@@ -1,18 +1,17 @@
 require "test_helper"
 
 class ChainValidatorTest < ActiveSupport::TestCase
-  # El validador no depende de Active Record: cualquier objeto que responda a
-  # estos métodos sirve. Esto demuestra que el service es agnóstico del framework.
-  FakeBlock = Struct.new(:block_index, :data, :previous_hash, :block_hash, :nonce, keyword_init: true)
+  FakeBlock = Struct.new(:block_index, :data, :previous_hash, :block_hash, :nonce, :difficulty, keyword_init: true)
 
-  def mined_block(block_index:, data:, previous_hash:)
-    result = ProofOfWork.mine(block_index: block_index, data: data, previous_hash: previous_hash)
+  def mined_block(block_index:, data:, previous_hash:, difficulty: 4)
+    result = ProofOfWork.mine(block_index: block_index, data: data, previous_hash: previous_hash, difficulty: difficulty)
     FakeBlock.new(
       block_index: block_index,
       data: data,
       previous_hash: previous_hash,
       block_hash: result[:block_hash],
-      nonce: result[:nonce]
+      nonce: result[:nonce],
+      difficulty: difficulty
     )
   end
 
@@ -52,14 +51,22 @@ class ChainValidatorTest < ActiveSupport::TestCase
 
     refute ChainValidator.valid?(chain)
   end
+
   test "first_invalid_position returns nil for a valid chain" do
-  assert_nil ChainValidator.first_invalid_position(valid_chain(3))
-end
+    assert_nil ChainValidator.first_invalid_position(valid_chain(3))
+  end
 
   test "first_invalid_position points at the tampered block" do
     chain = valid_chain(3)
     chain[1].data = "tampered!"
 
     assert_equal 1, ChainValidator.first_invalid_position(chain)
+  end
+
+  test "a block claiming more difficulty than its hash shows is invalid" do
+    chain = valid_chain(2)
+    chain[1].difficulty = 60
+
+    refute ChainValidator.valid?(chain)
   end
 end

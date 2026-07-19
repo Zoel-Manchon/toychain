@@ -10,13 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_18_211524) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_19_152656) do
   create_table "blocks", force: :cascade do |t|
     t.string "block_hash"
     t.integer "block_index"
     t.datetime "created_at", null: false
     t.text "data"
+    t.integer "difficulty", default: 4, null: false
     t.datetime "mined_at"
+    t.integer "mined_ms"
     t.integer "nonce"
     t.string "previous_hash"
     t.datetime "updated_at", null: false

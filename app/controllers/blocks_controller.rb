@@ -5,37 +5,26 @@ class BlocksController < ApplicationController
     @chain_valid = @first_invalid.nil?
   end
 
-  def tamper
-    block = Block.find(params[:id])
-    block.update!(data: "#{block.data} ⚠ TAMPERED")
-    redirect_to blocks_path, alert: "Block ##{block.block_index} tampered — integrity broken downstream."
-  end
-
   def new
     @block = Block.new
   end
 
   def create
-    result = ProofOfWork.mine(
-      block_index: Block.next_index,
-      data: block_params[:data],
-      previous_hash: Block.latest_hash
-    )
+    @block = Block.new(data: block_params[:data])
 
-    @block = Block.new(
-      block_index: Block.next_index,
-      data: block_params[:data],
-      previous_hash: Block.latest_hash,
-      block_hash: result[:block_hash],
-      nonce: result[:nonce],
-      mined_at: Time.current
-    )
-
-    if @block.save
-      redirect_to blocks_path, notice: "Block ##{@block.block_index} mined with nonce #{@block.nonce}"
-    else
+    if @block.data.blank?
+      @block.validate
       render :new, status: :unprocessable_entity
+    else
+      MineBlockJob.perform_later(@block.data)
+      redirect_to blocks_path, notice: "⛏ Mining queued — refresh in a moment to see your block."
     end
+  end
+
+  def tamper
+    block = Block.find(params[:id])
+    block.update!(data: "#{block.data} ⚠ TAMPERED")
+    redirect_to blocks_path, alert: "Block ##{block.block_index} tampered — integrity broken downstream."
   end
 
   def reset

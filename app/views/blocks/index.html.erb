@@ -2,35 +2,44 @@
   <%= turbo_stream_from "chain" %>
 
   <%# Ventana de terminal %>
-  <div class="rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-2xl shadow-black/50 overflow-hidden">
+  <div class="rounded-xl border border-indigo-700/50 bg-indigo-900/40 shadow-2xl shadow-indigo-950/80 overflow-hidden">
 
     <%# Barra de título %>
-    <div class="flex items-center gap-2 px-4 py-3 bg-zinc-900 border-b border-zinc-800">
-      <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
-      <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
-      <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
-      <span class="ml-3 text-xs text-zinc-500 tracking-wide truncate">toychain — block explorer</span>
+    <div class="flex items-center gap-2 px-4 py-3 bg-indigo-900/60 border-b border-indigo-700/50">
+      <span class="h-3 w-3 rounded-full bg-indigo-700"></span>
+      <span class="h-3 w-3 rounded-full bg-indigo-700"></span>
+      <span class="h-3 w-3 rounded-full bg-indigo-700"></span>
+      <span class="ml-3 text-xs text-indigo-400/70 tracking-wide truncate">toychain — block explorer</span>
     </div>
 
     <div class="p-4 sm:p-6 space-y-5 sm:space-y-6">
 
       <%# Diana de los broadcasts: la cadena en vivo %>
       <div id="chain" class="space-y-5 sm:space-y-6">
-        <%= render "chain", blocks: @blocks, first_invalid: @first_invalid %>
+        <%= render "chain", blocks: @blocks, first_invalid: @first_invalid, pending: @pending %>
       </div>
 
       <%# Acciones de la cadena %>
       <div class="pt-2 flex flex-wrap items-center gap-3">
         <%= link_to new_block_path,
-              class: "inline-flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition-colors" do %>
+              class: "inline-flex items-center gap-2 rounded-lg border border-sky-500/40 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-400 hover:bg-sky-500/20 transition-colors" do %>
           <span>$</span> mine --new-block
         <% end %>
 
-        <% unless @blocks.empty? %>
+        <% if @blocks.any? %>
           <%= button_to "$ chain --reset", reset_blocks_path, method: :delete,
                 data: { turbo_confirm: "Wipe the entire chain?" },
-                class: "cursor-pointer rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-500 hover:border-red-500/50 hover:text-red-400 transition-colors" %>
+                class: "cursor-pointer rounded-lg border border-indigo-700/60 px-4 py-2 text-sm text-indigo-400/70 hover:border-red-500/50 hover:text-red-400 transition-colors" %>
         <% end %>
+
+        <%# Sesión, empujada a la derecha %>
+        <div class="ml-auto flex items-center gap-3">
+          <span class="hidden sm:inline text-xs text-indigo-400/50"><%= Current.user&.email_address %></span>
+          <%= link_to "$ tokens", api_tokens_path,
+                class: "inline-flex items-center rounded-lg border border-indigo-700/60 px-4 py-2 text-sm text-indigo-400/70 hover:border-violet-500/50 hover:text-violet-400 transition-colors" %>
+          <%= button_to "$ logout", session_path, method: :delete,
+                class: "cursor-pointer rounded-lg border border-indigo-700/60 px-4 py-2 text-sm text-indigo-400/70 hover:border-sky-500/50 hover:text-sky-400 transition-colors" %>
+        </div>
       </div>
 
     </div>

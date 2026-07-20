@@ -1,4 +1,6 @@
 class Block < ApplicationRecord
+  belongs_to :user, optional: true
+
   validates :data, presence: true
   validates :difficulty, inclusion: { in: ProofOfWork::DIFFICULTY_RANGE }
 

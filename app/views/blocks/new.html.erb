@@ -1,15 +1,15 @@
 <main class="max-w-2xl mx-auto px-3 py-6 sm:px-4 sm:py-12">
-  <div class="rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-2xl shadow-black/50 overflow-hidden">
-    <div class="flex items-center gap-2 px-4 py-3 bg-zinc-900 border-b border-zinc-800">
-      <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
-      <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
-      <span class="h-3 w-3 rounded-full bg-zinc-700"></span>
-      <span class="ml-3 text-xs text-zinc-500 tracking-wide">toychain — mine</span>
+  <div class="rounded-xl border border-indigo-700/50 bg-indigo-900/40 shadow-2xl shadow-indigo-950/80 overflow-hidden">
+    <div class="flex items-center gap-2 px-4 py-3 bg-indigo-900/60 border-b border-indigo-700/50">
+      <span class="h-3 w-3 rounded-full bg-indigo-700"></span>
+      <span class="h-3 w-3 rounded-full bg-indigo-700"></span>
+      <span class="h-3 w-3 rounded-full bg-indigo-700"></span>
+      <span class="ml-3 text-xs text-indigo-400/70 tracking-wide">toychain — mine</span>
     </div>
 
     <div class="p-4 sm:p-6">
-      <p class="text-sm text-zinc-500 mb-4">
-        <span class="text-amber-500 glow-amber">$</span> <span class="cursor-blink">mine --interactive</span>
+      <p class="text-sm text-indigo-400/70 mb-4">
+        <span class="text-sky-400 glow-accent">$</span> <span class="cursor-blink">mine --interactive</span>
       </p>
 
       <%= form_with model: @block, class: "space-y-4" do |form| %>
@@ -22,22 +22,24 @@
         <% end %>
 
         <div>
-          <%= form.label :data, "block data", class: "block text-xs text-zinc-500 mb-1" %>
+          <%= form.label :data, "block data", class: "block text-xs text-indigo-400/70 mb-1" %>
           <%= form.text_area :data, rows: 4, autofocus: true,
                 placeholder: "payload to store in this block...",
-                class: "w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-700 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30" %>
+                class: "w-full rounded-lg border border-indigo-700/60 bg-indigo-950/60 px-3 py-2 text-sm text-indigo-100 placeholder-indigo-400/40 focus:border-sky-500/50 focus:outline-none focus:ring-1 focus:ring-sky-500/30" %>
         </div>
-         <div>
-          <%= form.label :difficulty, "difficulty (leading zeros)", class: "block text-xs text-zinc-500 mb-1" %>
+
+        <div>
+          <%= form.label :difficulty, "difficulty (leading zeros)", class: "block text-xs text-indigo-400/70 mb-1" %>
           <%= form.select :difficulty,
                 options_for_select(ProofOfWork::DIFFICULTY_RANGE.map { |d| [ "#{d} — #{"0" * d}…", d ] }, 4),
                 {},
-                class: "w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30" %>
-        </div>         
+                class: "w-full rounded-lg border border-indigo-700/60 bg-indigo-950/60 px-3 py-2 text-sm text-indigo-100 focus:border-sky-500/50 focus:outline-none focus:ring-1 focus:ring-sky-500/30" %>
+        </div>
+
         <div class="flex items-center gap-3">
           <%= form.submit "⛏ mine block",
-                class: "cursor-pointer rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition-colors" %>
-          <%= link_to "cancel", blocks_path, class: "text-sm text-zinc-600 hover:text-zinc-400" %>
+                class: "cursor-pointer rounded-lg border border-sky-500/40 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-400 hover:bg-sky-500/20 transition-colors" %>
+          <%= link_to "cancel", blocks_path, class: "text-sm text-indigo-400/50 hover:text-indigo-300/80" %>
         </div>
       <% end %>
     </div>

@@ -1,0 +1,62 @@
+<main class="max-w-2xl mx-auto px-3 py-6 sm:px-4 sm:py-12">
+  <div class="rounded-xl border border-indigo-700/50 bg-indigo-900/40 shadow-2xl shadow-indigo-950/80 overflow-hidden">
+    <div class="flex items-center gap-2 px-4 py-3 bg-indigo-900/60 border-b border-indigo-700/50">
+      <span class="h-3 w-3 rounded-full bg-indigo-700"></span>
+      <span class="h-3 w-3 rounded-full bg-indigo-700"></span>
+      <span class="h-3 w-3 rounded-full bg-indigo-700"></span>
+      <span class="ml-3 text-xs text-indigo-400/70 tracking-wide">toychain — api tokens</span>
+    </div>
+
+    <div class="p-4 sm:p-6 space-y-6">
+      <p class="text-sm text-indigo-400/70">
+        <span class="text-sky-400 glow-accent">$</span> <span class="cursor-blink">token --manage</span>
+      </p>
+
+      <%# Token recién creado: se muestra UNA vez %>
+      <% if flash[:raw_token] %>
+        <div class="rounded-lg border border-violet-500/30 bg-violet-500/10 px-4 py-3">
+          <p class="text-xs text-indigo-300/80 mb-2">Your new token — copy it now, only its hash is stored:</p>
+          <code class="block break-all text-sm text-violet-400 select-all"><%= flash[:raw_token] %></code>
+          <p class="mt-2 text-xs text-indigo-400/50">usage: <code>curl -H "Authorization: Bearer &lt;token&gt;" .../api/v1/chain</code></p>
+        </div>
+      <% end %>
+
+      <%# Crear token %>
+      <%= form_with model: @token, url: api_tokens_path, class: "flex flex-wrap items-end gap-3" do |form| %>
+        <div class="grow">
+          <%= form.label :name, "token name", class: "block text-xs text-indigo-400/70 mb-1" %>
+          <%= form.text_field :name, placeholder: "verifier-script", required: true,
+                class: "w-full rounded-lg border border-indigo-700/60 bg-indigo-950/60 px-3 py-2 text-sm text-indigo-100 placeholder-indigo-400/40 focus:border-sky-500/50 focus:outline-none focus:ring-1 focus:ring-sky-500/30" %>
+        </div>
+        <%= form.submit "+ generate",
+              class: "cursor-pointer rounded-lg border border-sky-500/40 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-400 hover:bg-sky-500/20 transition-colors" %>
+      <% end %>
+
+      <%# Listado %>
+      <% if @tokens.any? %>
+        <ul class="space-y-2">
+          <% @tokens.each do |token| %>
+            <li class="flex items-center justify-between gap-3 rounded-lg border border-indigo-700/50 bg-indigo-950/50 px-4 py-3">
+              <div class="min-w-0">
+                <p class="text-sm text-indigo-100 truncate"><%= token.name %></p>
+                <p class="text-xs text-indigo-400/50">
+                  created <%= token.created_at.strftime("%Y-%m-%d") %>
+                  · <%= token.last_used_at ? "last used #{time_ago_in_words(token.last_used_at)} ago" : "never used" %>
+                </p>
+              </div>
+              <%= button_to "revoke", api_token_path(token), method: :delete,
+                    data: { turbo_confirm: "Revoke #{token.name}?" },
+                    class: "cursor-pointer rounded border border-indigo-700/60 px-2 py-1 text-xs text-indigo-400/70 hover:border-red-500/50 hover:text-red-400 transition-colors" %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-sm text-indigo-400/50">// no tokens yet</p>
+      <% end %>
+
+      <div class="pt-2">
+        <%= link_to "← back to chain", blocks_path, class: "text-sm text-indigo-400/70 hover:text-sky-400" %>
+      </div>
+    </div>
+  </div>
+</main>

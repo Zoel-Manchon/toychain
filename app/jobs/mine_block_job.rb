@@ -1,7 +1,7 @@
 class MineBlockJob < ApplicationJob
   queue_as :default
 
-  def perform(data, difficulty = ProofOfWork::DIFFICULTY)
+  def perform(data, difficulty = ProofOfWork::DIFFICULTY, user_id = nil)
     block_index = Block.next_index
     previous_hash = Block.latest_hash
 
@@ -22,21 +22,10 @@ class MineBlockJob < ApplicationJob
       nonce: result[:nonce],
       difficulty: difficulty,
       mined_ms: elapsed_ms,
-      mined_at: Time.current
+      mined_at: Time.current,
+      user_id: user_id
     )
 
-    broadcast_chain
-  end
-
-  private
-
-  def broadcast_chain
-    blocks = Block.all
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "chain",
-      target: "chain",
-      partial: "blocks/chain",
-      locals: { blocks: blocks, first_invalid: ChainValidator.first_invalid_position(blocks) }
-    )
+    ChainBroadcaster.call(pending: [ MiningQueue.pending - 1, 0 ].max)
   end
 end

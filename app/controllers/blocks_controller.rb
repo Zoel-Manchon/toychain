@@ -1,8 +1,9 @@
 class BlocksController < ApplicationController
   def index
-    @blocks = Block.all
+    @blocks = Block.includes(:user)
     @first_invalid = ChainValidator.first_invalid_position(@blocks)
     @chain_valid = @first_invalid.nil?
+    @pending = MiningQueue.pending
   end
 
   def new
@@ -19,19 +20,22 @@ class BlocksController < ApplicationController
       @block.validate
       render :new, status: :unprocessable_entity
     else
-      MineBlockJob.perform_later(@block.data, difficulty)
-      redirect_to blocks_path, notice: "⛏ Mining queued at difficulty #{difficulty} — your block will appear when proof-of-work completes."
+      MineBlockJob.perform_later(@block.data, difficulty, Current.user.id)
+      ChainBroadcaster.call
+      redirect_to blocks_path, notice: "⛏ Mining queued at difficulty #{difficulty}."
     end
   end
 
   def tamper
     block = Block.find(params[:id])
-    block.update!(data: "#{block.data} ⚠ TAMPERED")
+    block.update!(data: "#{block.data} ⚠ TAMPERED by #{Current.user.email_address}")
+    ChainBroadcaster.call
     redirect_to blocks_path, alert: "Block ##{block.block_index} tampered — integrity broken downstream."
   end
 
   def reset
     Block.delete_all
+    ChainBroadcaster.call
     redirect_to blocks_path, notice: "Chain reset — genesis awaits."
   end
 

@@ -14,27 +14,27 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Aquí se cargan los estilos: sin estas dos líneas, Tailwind no llega al navegador %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-zinc-950 text-zinc-300 font-mono antialiased selection:bg-amber-500/30 selection:text-amber-100">
+  <body class="min-h-screen bg-indigo-950 text-indigo-200 font-mono antialiased selection:bg-sky-500/30 selection:text-sky-100">
     <% if notice %>
       <div class="max-w-3xl mx-auto mt-6 px-4">
-        <div class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
-          <span class="text-amber-500 mr-2">▸</span><%= notice %>
+        <div class="rounded-lg border border-sky-500/30 bg-sky-500/10 px-4 py-3 text-sm text-sky-300">
+          <span class="text-sky-400 mr-2">▸</span><%= notice %>
         </div>
       </div>
     <% end %>
+
     <% if alert %>
-    <div class="max-w-3xl mx-auto mt-6 px-4">
-      <div class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-        <span class="text-red-500 mr-2">✗</span><%= alert %>
+      <div class="max-w-3xl mx-auto mt-6 px-4">
+        <div class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+          <span class="text-red-500 mr-2">✗</span><%= alert %>
+        </div>
       </div>
-    </div>
-  <% end %>
+    <% end %>
 
     <%= yield %>
   </body>

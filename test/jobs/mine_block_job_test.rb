@@ -1,42 +1,31 @@
-class MineBlockJob < ApplicationJob
-  queue_as :default
+require "test_helper"
+require "turbo/broadcastable/test_helper"
 
-  def perform(data, difficulty = ProofOfWork::DIFFICULTY)
-    block_index = Block.next_index
-    previous_hash = Block.latest_hash
+class MineBlockJobTest < ActiveJob::TestCase
+  include Turbo::Broadcastable::TestHelper
 
-    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    result = ProofOfWork.mine(
-      block_index: block_index,
-      data: data,
-      previous_hash: previous_hash,
-      difficulty: difficulty
-    )
-    elapsed_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
+  test "mines a valid block and broadcasts the chain" do
+    assert_turbo_stream_broadcasts("chain") do
+      MineBlockJob.perform_now("hello")
+    end
 
-    Block.create!(
-      block_index: block_index,
-      data: data,
-      previous_hash: previous_hash,
-      block_hash: result[:block_hash],
-      nonce: result[:nonce],
-      difficulty: difficulty,
-      mined_ms: elapsed_ms,
-      mined_at: Time.current
-    )
-
-    broadcast_chain
+    block = Block.last
+    assert_equal "hello", block.data
+    assert block.block_hash.start_with?("0" * ProofOfWork::DIFFICULTY)
   end
 
-  private
+  test "mines at the requested difficulty and records timing" do
+    MineBlockJob.perform_now("hard one", 5)
 
-  def broadcast_chain
-    blocks = Block.all
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "chain",
-      target: "chain",
-      partial: "blocks/chain",
-      locals: { blocks: blocks, first_invalid: ChainValidator.first_invalid_position(blocks) }
-    )
+    block = Block.last
+    assert_equal 5, block.difficulty
+    assert block.block_hash.start_with?("00000")
+    assert block.mined_ms >= 0
+  end
+
+  test "records the mining operator when given a user id" do
+    MineBlockJob.perform_now("authored", 2, users(:zoel).id)
+
+    assert_equal users(:zoel), Block.last.user
   end
 end
